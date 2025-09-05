@@ -1,5 +1,2 @@
-mcp
-slack-sdk
+slack-mcp-server>=0.2.1
 python-dotenv
-uvicorn
-fastapi
