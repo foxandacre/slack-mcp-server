@@ -29,26 +29,53 @@ async def health():
 
 @app.post("/mcp")
 async def mcp_endpoint(request: Request):
-    body = await request.json()
-    
-    # Basic MCP response
-    if body.get("method") == "initialize":
+    try:
+        body = await request.json()
+        method = body.get("method")
+        
+        if method == "initialize":
+            return {
+                "jsonrpc": "2.0",
+                "id": body.get("id"),
+                "result": {
+                    "protocolVersion": "2024-11-05",
+                    "capabilities": {
+                        "tools": {
+                            "listTools": {},
+                            "callTool": {}
+                        }
+                    },
+                    "serverInfo": {
+                        "name": "slack-mcp-server",
+                        "version": "1.0.0"
+                    }
+                }
+            }
+        elif method == "tools/list":
+            return {
+                "jsonrpc": "2.0",
+                "id": body.get("id"),
+                "result": {
+                    "tools": []
+                }
+            }
+        else:
+            return {
+                "jsonrpc": "2.0",
+                "id": body.get("id"),
+                "result": {}
+            }
+            
+    except Exception as e:
         return {
             "jsonrpc": "2.0",
-            "id": body.get("id"),
-            "result": {
-                "capabilities": {
-                    "tools": {}
-                },
-                "serverInfo": {
-                    "name": "slack-mcp-server",
-                    "version": "1.0.0"
-                }
+            "id": body.get("id", None),
+            "error": {
+                "code": -32600,
+                "message": f"Invalid Request: {str(e)}"
             }
         }
     
-    return {"jsonrpc": "2.0", "id": body.get("id"), "result": {}}
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     uvicorn.run(app, host="0.0.0.0", port=port)
