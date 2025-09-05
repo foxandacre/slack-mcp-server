@@ -1,1 +1,1 @@
-web: slack-mcp-server
+web: python main.py
